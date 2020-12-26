@@ -1,9 +1,8 @@
 ﻿using Castle.DynamicProxy;
-using ParameterValidation.Attributes;
-using System;
+using ParameterValidation.Exceptions;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Reflection;
-using System.Text;
 
 namespace ParameterValidation.Interceptor
 {
@@ -12,21 +11,42 @@ namespace ParameterValidation.Interceptor
         public void Intercept(IInvocation invocation)
         {
             ParameterInfo[] parameters = invocation.Method.GetParameters();
+            bool proceed = true;
+            IList<ValidationResult> results = new List<ValidationResult>();
+            
             for (int index = 0; index < parameters.Length; index++)
             {
-                var paramInfo = parameters[index];
-                var attributes = paramInfo.GetCustomAttributes(typeof(ArgumentValidationAttribute), false);
+                ParameterInfo paramInfo = parameters[index];
+                object[] attributes = paramInfo.GetCustomAttributes(typeof(ValidationAttribute), false);
 
                 if (attributes.Length == 0)
                     continue;
 
-                foreach (ArgumentValidationAttribute attr in attributes)
+                foreach (ValidationAttribute attr in attributes)
                 {
-                    attr.Validate(invocation.Arguments[index], paramInfo.Name);
+                    object valueToValidate = invocation.Arguments[index];
+                    bool isValid = attr.IsValid(valueToValidate);
+
+                    if (!isValid)
+                    {
+                        proceed = false;
+
+                        results.Add(new ValidationResult ( 
+                            attr.ErrorMessage,
+                            new List<string> { paramInfo.Name }
+                        ));
+                    }
                 }
             }
 
-            invocation.Proceed();
+            if (proceed)
+            {
+                invocation.Proceed();
+
+                return;
+            }
+
+            throw new NotValidParametersException(results);
         }
     }
 }
