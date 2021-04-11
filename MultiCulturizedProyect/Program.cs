@@ -14,7 +14,9 @@ namespace MultiCulturizedProyect
             WriteWelcomes();
             WriteLine("----------------------------------------------");
 
-            Resources.Culture = new CultureInfo("es-US");
+            Thread.CurrentThread.CurrentCulture = CultureInfo.CreateSpecificCulture("en");
+            Thread.CurrentThread.CurrentUICulture = CultureInfo.CreateSpecificCulture("en");
+            
             WriteLine("Cultura en ingles");
             WriteWelcomes();
             WriteLine("----------------------------------------------");
