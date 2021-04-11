@@ -1,7 +1,5 @@
 ﻿using MultiCulturizedProyect.Properties;
-using System;
 using System.Globalization;
-using System.Threading;
 using static System.Console;
 
 namespace MultiCulturizedProyect
@@ -20,6 +18,11 @@ namespace MultiCulturizedProyect
 
             Resources.Culture = CultureInfo.CreateSpecificCulture("en");
             WriteLine("Cultura en ingles");
+            WriteWelcomes();
+            WriteLine("----------------------------------------------");
+
+            Resources.Culture = CultureInfo.CreateSpecificCulture("fr");
+            WriteLine("Cultura en frances");
             WriteWelcomes();
             WriteLine("----------------------------------------------");
         }
